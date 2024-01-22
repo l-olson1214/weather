@@ -34,7 +34,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         isLoading = false
     }
     
-    static func getCoordinate(from zipCode: String, completion: @escaping (CLLocationCoordinate2D?) -> Void) {
+    func getCoordinate(from zipCode: String) {
         let geocoder = CLGeocoder()
         
         geocoder.geocodeAddressString(zipCode) { (placemarks, error) in
@@ -44,7 +44,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
             
             if let placemark = placemarks?.first, let location = placemark.location {
-                completion(location.coordinate)
+                self.location = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
             } else {
                 print("No location found for the provided zip code.")
             }

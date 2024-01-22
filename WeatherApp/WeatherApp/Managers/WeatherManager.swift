@@ -114,3 +114,76 @@ struct ResponseBody: Decodable {
         let value: Double
     }
 }
+
+struct ForecastBody {
+    struct WeatherResponse: Codable {
+        let context: [Context]
+        let type: String
+        let geometry: Geometry
+        let properties: WeatherProperties
+    }
+
+    struct Context: Codable {
+        let version: String?
+        let wx: String?
+        let geo: String?
+        let unit: String?
+        let vocab: String?
+    }
+
+    struct Geometry: Codable {
+        let type: String
+        let coordinates: [[[Double]]]
+    }
+
+    struct WeatherProperties: Codable {
+        let updated: String
+        let units: String
+        let forecastGenerator: String
+        let generatedAt: String
+        let updateTime: String
+        let validTimes: String
+        let elevation: Elevation
+        let periods: [ForecastPeriod]
+    }
+
+    struct Elevation: Codable {
+        let unitCode: String
+        let value: Double
+    }
+
+    struct ForecastPeriod: Codable {
+        let number: Int
+        let name: String
+        let startTime: String
+        let endTime: String
+        let isDaytime: Bool
+        let temperature: Int
+        let temperatureUnit: String
+        let temperatureTrend: String?
+        let probabilityOfPrecipitation: PrecipitationProbability
+        let dewpoint: Dewpoint
+        let relativeHumidity: RelativeHumidity
+        let windSpeed: String
+        let windDirection: String
+        let icon: String
+        let shortForecast: String
+        let detailedForecast: String
+    }
+
+    struct PrecipitationProbability: Codable {
+        let unitCode: String
+        let value: Int?
+    }
+
+    struct Dewpoint: Codable {
+        let unitCode: String
+        let value: Double
+    }
+
+    struct RelativeHumidity: Codable {
+        let unitCode: String
+        let value: Int
+    }
+
+}

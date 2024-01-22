@@ -11,21 +11,20 @@ import SwiftUI
 
 struct WelcomeView: View {
     @EnvironmentObject var locationManager: LocationManager
-    @State var zipCode = "00000"
+    @State var zipCode = ""
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 10) {
             VStack(spacing: 20) {
                 Text("Welcome to the Weather App")
                     .bold()
                     .font(.title)
 
                 Text("Please share your current location to get the weather in your area")
-                    .padding()
             }
             .multilineTextAlignment(.center)
             .padding()
-
+            
             LocationButton(.shareCurrentLocation) {
                     locationManager.requestLocation()
             }
@@ -33,12 +32,16 @@ struct WelcomeView: View {
             .symbolVariant(.fill)
             .foregroundColor(.white)
             
-            HStack {
-                Text("Or, enter zipcode: ")
-                TextField("Zip", text: $zipCode)
-            }
+            Text("Or")
+        
+            TextField("Zip Code", text: $zipCode)
+                .frame(width: UIScreen.main.bounds.width / 1.50)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onSubmit {
+                    locationManager.getCoordinate(from: zipCode)
+                }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

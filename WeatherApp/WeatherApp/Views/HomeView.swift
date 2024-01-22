@@ -18,16 +18,14 @@ struct HomeView: View {
         VStack {
             if let location = locationManager.location {
                 if let weather = weather {
-                    Text("Weather data fetched")
+                    Text("\(weather.properties.relativeLocation.properties.city), \(weather.properties.relativeLocation.properties.state)")
+                        .font(.title)
+                    Text("Today, the temperature is \(weather.properties.forecast.description)")
                 }
                 else {
                     LoadingView()
                         .task {
-                            do {
-                                weather = try await weatherManager.getCurrentWeather(latitude: location.latitude, longitude: location.longitude)
-                            } catch {
-                                print("Error getting weather information.")
-                            }
+                            weather = await weatherManager.getCurrentWeather(latitude: location.latitude, longitude: location.longitude)
                         }
                 }
             }
@@ -41,22 +39,8 @@ struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onAppear {
-            zipToLatLong(zipCode: "43081")
-        }
         .padding()
         .preferredColorScheme(.dark)
-    }
-    
-    func zipToLatLong(zipCode: String) {
-        LocationManager.getCoordinate(from: zipCode) { coordinate in
-            if let coordinate = coordinate {
-                print("Latitude: \(coordinate.latitude), Longitude: \(coordinate.longitude)")
-            } else {
-                //TODO: catch this as error
-                print("Unable to get coordinates for the provided zip code.")
-            }
-        }
     }
 }
 
