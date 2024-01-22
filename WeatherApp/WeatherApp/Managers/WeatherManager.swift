@@ -30,8 +30,31 @@ class WeatherManager {
         
         return nil
     }
+    
+    func getForecast(url: String) async -> ForecastBody? {
+        guard let url = URL(string: url) else {
+            fatalError("Missing URL")
+        }
+        
+        let urlRequest = URLRequest(url: url)
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: urlRequest)
+            
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { fatalError("Fetching data failed") }
+            
+            let decodedData = try JSONDecoder().decode(ForecastBody.self, from: data)
+            
+            return decodedData
+        } catch {
+            print("Error fetching weather: \(error)")
+        }
+        
+        return nil
+    }
 }
 
+// MARK: Response Body
 struct ResponseBody: Decodable {
     let id: String
     let type: String
@@ -115,28 +138,18 @@ struct ResponseBody: Decodable {
     }
 }
 
-struct ForecastBody {
-    struct WeatherResponse: Codable {
-        let context: [Context]
-        let type: String
-        let geometry: Geometry
-        let properties: WeatherProperties
-    }
+// MARK: Forecast Body
+struct ForecastBody: Decodable {
+    let type: String
+    let geometry: Geometry
+    let properties: Properties
 
-    struct Context: Codable {
-        let version: String?
-        let wx: String?
-        let geo: String?
-        let unit: String?
-        let vocab: String?
-    }
-
-    struct Geometry: Codable {
+    struct Geometry: Decodable {
         let type: String
         let coordinates: [[[Double]]]
     }
 
-    struct WeatherProperties: Codable {
+    struct Properties: Decodable {
         let updated: String
         let units: String
         let forecastGenerator: String
@@ -144,46 +157,45 @@ struct ForecastBody {
         let updateTime: String
         let validTimes: String
         let elevation: Elevation
-        let periods: [ForecastPeriod]
-    }
+        let periods: [Period]
 
-    struct Elevation: Codable {
-        let unitCode: String
-        let value: Double
-    }
+        struct Elevation: Decodable {
+            let unitCode: String
+            let value: Double
+        }
 
-    struct ForecastPeriod: Codable {
-        let number: Int
-        let name: String
-        let startTime: String
-        let endTime: String
-        let isDaytime: Bool
-        let temperature: Int
-        let temperatureUnit: String
-        let temperatureTrend: String?
-        let probabilityOfPrecipitation: PrecipitationProbability
-        let dewpoint: Dewpoint
-        let relativeHumidity: RelativeHumidity
-        let windSpeed: String
-        let windDirection: String
-        let icon: String
-        let shortForecast: String
-        let detailedForecast: String
-    }
+        struct Period: Decodable {
+            let number: Int
+            let name: String
+            let startTime: String
+            let endTime: String
+            let isDaytime: Bool
+            let temperature: Int
+            let temperatureUnit: String
+            let temperatureTrend: String?
+            let probabilityOfPrecipitation: ProbabilityOfPrecipitation?
+            let dewpoint: Dewpoint
+            let relativeHumidity: RelativeHumidity
+            let windSpeed: String
+            let windDirection: String
+            let icon: String
+            let shortForecast: String
+            let detailedForecast: String
 
-    struct PrecipitationProbability: Codable {
-        let unitCode: String
-        let value: Int?
-    }
+            struct ProbabilityOfPrecipitation: Decodable {
+                let unitCode: String
+                let value: Int?
+            }
 
-    struct Dewpoint: Codable {
-        let unitCode: String
-        let value: Double
-    }
+            struct Dewpoint: Decodable {
+                let unitCode: String
+                let value: Double
+            }
 
-    struct RelativeHumidity: Codable {
-        let unitCode: String
-        let value: Int
+            struct RelativeHumidity: Decodable {
+                let unitCode: String
+                let value: Int
+            }
+        }
     }
-
 }

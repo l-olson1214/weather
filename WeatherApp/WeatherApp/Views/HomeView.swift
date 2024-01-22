@@ -13,6 +13,7 @@ struct HomeView: View {
     @StateObject var locationManager = LocationManager()
     var weatherManager = WeatherManager()
     @State var weather: ResponseBody?
+    @State var forecast: ForecastBody?
     
     var body: some View {
         VStack {
@@ -20,9 +21,15 @@ struct HomeView: View {
                 if let weather = weather {
                     Text("\(weather.properties.relativeLocation.properties.city), \(weather.properties.relativeLocation.properties.state)")
                         .font(.title)
-                    Text("Today, the temperature is \(weather.properties.forecast.description)")
-                }
-                else {
+                    if let forecast = forecast {
+                        Text("Today, the temperature is \(forecast.properties.updateTime)")
+                    } else {
+                        LoadingView()
+                            .task {
+                                forecast = await weatherManager.getForecast(url: weather.properties.forecast)
+                            }
+                    }
+                } else {
                     LoadingView()
                         .task {
                             weather = await weatherManager.getCurrentWeather(latitude: location.latitude, longitude: location.longitude)
