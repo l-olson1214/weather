@@ -8,6 +8,34 @@
 import Foundation
 import CoreLocation
 
+enum Chilliness: Int {
+    case reallyCold
+    case cold
+    case chilly
+    case mild
+    case warm
+    case hot
+    
+    init?(intValue: Int) {
+        switch intValue {
+        case ..<20:
+            self = .reallyCold
+        case 20..<30:
+            self = .cold
+        case 30..<40:
+            self = .chilly
+        case 40..<60:
+            self = .mild
+        case 60..<80:
+            self = .warm
+        case 80...:
+            self = .hot
+        default:
+            return nil
+        }
+    }
+}
+
 class WeatherManager {
     func getCurrentWeather(latitude: CLLocationDegrees, longitude: CLLocationDegrees) async -> ResponseBody? {
         guard let url = URL(string: "https://api.weather.gov/points/\(latitude),\(longitude)") else {
@@ -164,8 +192,17 @@ struct ForecastBody: Decodable {
             let value: Double
         }
 
-        struct Period: Decodable {
-            let number: Int
+        struct Period: Decodable, Identifiable, Hashable {
+            static func == (lhs: ForecastBody.Properties.Period, rhs: ForecastBody.Properties.Period) -> Bool {
+                return lhs.id == rhs.id
+            }
+            
+            func hash(into hasher: inout Hasher) {
+                hasher.combine(id)
+                hasher.combine(name)
+            }
+            
+            let id: Int
             let name: String
             let startTime: String
             let endTime: String
@@ -181,6 +218,25 @@ struct ForecastBody: Decodable {
             let icon: String
             let shortForecast: String
             let detailedForecast: String
+            
+            enum CodingKeys: String, CodingKey {
+                case id = "number"
+                case name
+                case startTime
+                case endTime
+                case isDaytime
+                case temperature
+                case temperatureUnit
+                case temperatureTrend
+                case probabilityOfPrecipitation
+                case dewpoint
+                case relativeHumidity
+                case windSpeed
+                case windDirection
+                case icon
+                case shortForecast
+                case detailedForecast
+            }
 
             struct ProbabilityOfPrecipitation: Decodable {
                 let unitCode: String

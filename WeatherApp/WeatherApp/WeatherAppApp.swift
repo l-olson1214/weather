@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct WeatherAppApp: App {
+    @StateObject private var dataController = DataController()
+    
     var body: some Scene {
         WindowGroup {
             HomeView()
+                .environment(\.managedObjectContext, dataController.container.viewContext)
         }
     }
 }

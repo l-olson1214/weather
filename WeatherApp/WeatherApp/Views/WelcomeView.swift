@@ -12,6 +12,7 @@ import SwiftUI
 struct WelcomeView: View {
     @EnvironmentObject var locationManager: LocationManager
     @State var zipCode = ""
+    @State var previousSearches: [CLLocationCoordinate2D] = [] // to be implemented as core data
     
     var body: some View {
         VStack(spacing: 10) {
@@ -40,6 +41,12 @@ struct WelcomeView: View {
                 .onSubmit {
                     locationManager.getCoordinate(from: zipCode)
                 }
+            
+            if !previousSearches.isEmpty {
+                ForEach(previousSearches, id: \.self) { search in
+                    Text("\(search.latitude), \(search.longitude)")
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
